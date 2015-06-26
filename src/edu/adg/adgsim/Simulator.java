@@ -37,7 +37,7 @@ public class Simulator implements Runnable {
 
     public void run() {
         //GENERATE GIVEN HISTORY
-        givenHistory = simulate(14);
+        givenHistory = simulate(19);
 
 
         //Step 1. Infect the people that should be originally infected.
@@ -111,6 +111,25 @@ public class Simulator implements Runnable {
 
             while (days.size() < simulationDuration) {
                 //Step 1. Loop through each person, and, if the person is infected, randomly infect non-recovered friends.
+                //Step 2. Loop through each person, and, if the person is infected, add a day to his counter.
+                //Step 3. Loop through each person, and, if the person is infected and his sick counter reached the limit, make the person recover.
+                for (Person p : people) {
+                    if (p.getState() == infected) {
+                        for (Person friend : p.getFriends()) {
+                            if (r(infectionConstant) && friend.getState() != recovered) {
+                                friend.setState(infected);
+                            }
+                        }
+                        p.incrementSickDays();
+                        if (p.getSickDays() == recoveryDays) {
+                            p.resetSickDays();
+                            p.setState(recovered);
+                        }
+                    }
+                }
+
+                /*
+                //Step 1. Loop through each person, and, if the person is infected, randomly infect non-recovered friends.
                 for (Person p : people) {
                     if (p.getState() == infected) {
                         for (Person friend : p.getFriends()) {
@@ -137,6 +156,7 @@ public class Simulator implements Runnable {
                         }
                     }
                 }
+                */
 
                 //Step 4. Save the people into a day.
                 List<Person> peopleToSave = new ArrayList<Person>();
@@ -196,16 +216,20 @@ public class Simulator implements Runnable {
         List<Float> percentageScores = new ArrayList<Float>();
 
         for (List<DayInfo> percentage : histories) {
-            System.out.println("Doing percentage number " + histories.indexOf(percentage) + ".");
+//            System.out.println("Doing percentage number " + histories.indexOf(percentage) + ".");
             float percentageScore = 0;
             for (int i = 0; i < history.size(); i++) {
-                System.out.println("Comparing day " + i + "...");
+//                System.out.println("Comparing day " + i + "...");
                 float valueForThisPercentage = percentage.get(i).getNumSick();
                 float valueForGivenHistory = history.get(i).getNumSick();
                 float difference = Utils.getDifference(valueForThisPercentage, valueForGivenHistory);
                 percentageScore += difference;
             }
             percentageScores.add(percentageScore);
+        }
+
+        for (Float percentageScore : percentageScores) {
+            System.out.println("Variation from " + percentageScores.indexOf(percentageScore) + ": " + percentageScore + ".");
         }
 
         int percentage = percentageScores.indexOf(Collections.min(percentageScores));
