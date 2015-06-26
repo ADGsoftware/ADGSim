@@ -201,7 +201,7 @@ public class Utils {
 
         int width = 640;
         int height = 480;
-        File lineChart = new File("C:\\Users\\Irochka\\workspace\\and\\ADGSim\\" + filename + ".png");
+        File lineChart = new File("C:\\Users\\Irochka\\Documents\\GitHub\\ADGSim\\" + filename + ".png");
 
         System.out.println("3");
 

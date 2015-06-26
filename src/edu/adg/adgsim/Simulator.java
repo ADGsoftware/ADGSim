@@ -46,13 +46,22 @@ public class Simulator implements Runnable {
         }
 
         //Step 2. Simulate with this List of people.
-        for (int i = 80; i < 100; i++) {
+        for (int i = 0; i < 100; i++) {
             List<Day> history = simulate(i);
             histories.add(history);
 
             //Reset people
             for (Person p : people) {
                 p.setState(susceptible);
+            }
+
+            //Infect the people that should be originally infected.
+            for (int j = 0; j < numberOfPeopleOriginallyInfected; j++) {
+                Person person = people.get(Utils.randInt(0, people.size() - 1));
+                while (person.getState() == infected) {
+                    person = people.get(Utils.randInt(0, people.size() - 1));
+                }
+                person.setState(infected);
             }
         }
 
