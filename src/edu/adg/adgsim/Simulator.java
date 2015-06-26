@@ -15,7 +15,7 @@ public class Simulator implements Runnable {
     int numberOfPeopleOriginallyInfected = 0;
 
     //GIVEN HISTORY. THIS IS GENERATED FOR NOW, BUT WILL BE PASSED AS A PARAMETER IN TOMCAT.
-    List<DayInfo> givenHistory;
+    List<DayInfo> givenHistory = new ArrayList<DayInfo>();
 
     //Values TODO: Add as parameters
     int simulationDuration = 25;
@@ -37,7 +37,27 @@ public class Simulator implements Runnable {
 
     public void run() {
         //GENERATE GIVEN HISTORY
-        givenHistory = simulate(19);
+//        givenHistory = simulate(19);
+        DayInfo day1 = new DayInfo(0, 1);
+        DayInfo day2 = new DayInfo(1, 3);
+        DayInfo day3 = new DayInfo(2, 5);
+        DayInfo day4 = new DayInfo(3, 5);
+        DayInfo day5 = new DayInfo(4, 7);
+        DayInfo day6 = new DayInfo(5, 10);
+        DayInfo day7 = new DayInfo(6, 11);
+        DayInfo day8 = new DayInfo(7, 12);
+        DayInfo day9 = new DayInfo(8, 12);
+
+        givenHistory.add(day1);
+        givenHistory.add(day2);
+        givenHistory.add(day3);
+        givenHistory.add(day4);
+        givenHistory.add(day5);
+        givenHistory.add(day6);
+        givenHistory.add(day7);
+        givenHistory.add(day8);
+        givenHistory.add(day9);
+
 
 
         //Step 1. Infect the people that should be originally infected.
@@ -77,9 +97,9 @@ public class Simulator implements Runnable {
         System.out.println();
 
 
-        float closestPercentage = findClosestMatch(givenHistory, histories);
+        Float[] percentageAndError = findClosestMatch(givenHistory, histories);
 
-        System.out.println("The given history is closest to " + closestPercentage + "%.");
+        System.out.println("The given history is closest to " + percentageAndError[0] + "% with offset [unknown], with an error of " + percentageAndError[1] + ".");
 
         //Make chart
         try {
@@ -212,7 +232,74 @@ public class Simulator implements Runnable {
         return dayInfos;
     }
 
-    private float findClosestMatch(List<DayInfo> history, List<List<DayInfo>> histories) {
+
+    /*
+
+
+    DOES NOT WORK!!!!!! DO NOT USE THIS METHOD!!!!
+
+
+
+     */
+    /**
+     * Returns the closest match with an offset. THIS ASSUMES THAT ALL GIVEN HISTORIES DO NOT HAVE ANY 0-SICK DAYS IN THE BEGINNING.
+     * @param history - the given history
+     * @param histories - the simulated histories
+     * @return
+     * /
+    private Float[] findClosestMatchWithOffset(List<DayInfo> history, List<List<DayInfo>> histories) {
+        int maxOffset = simulationDuration - history.size();
+
+        Float[][] offsetMatches = new Float[maxOffset][2];
+
+        for (int i = 0; i < maxOffset - 1; i++) {
+            System.out.println("At offset " + i + ".");
+            List<DayInfo> offsetHistory = new ArrayList<DayInfo>();
+
+            //Populate list
+            for (int j = 0; j < history.size(); j++) {
+                offsetHistory.add(new DayInfo(j, 0));
+            }
+
+            //Finish list with zeroes
+            for (int j = history.size(); j < simulationDuration; j++) {
+                history.add(new DayInfo(j, 0));
+            }
+
+            history.get(23);
+
+            //Shift all list values from original list by the offset amount
+            for (int k = 0; k < offsetHistory.size() - i; k++) {
+                offsetHistory.set(k, history.get(k + i));
+            }
+
+            Float[] matchForThisOffset = findClosestMatch(offsetHistory, histories);
+            offsetMatches[i][0] = matchForThisOffset[0];
+            offsetMatches[i][1] = matchForThisOffset[1];
+        }
+
+        float error = Float.MAX_VALUE;
+        float percentage = 0;
+        float offset = 0;
+        for (int i = 0; i < offsetMatches.length; i++)  {
+            if (offsetMatches[i][1] < error) {
+                error = offsetMatches[i][1];
+                percentage = offsetMatches[i][0];
+                offset = i;
+            }
+        }
+
+        Float[] errorAndPercentageAndOffset = new Float[2];
+        errorAndPercentageAndOffset[0] = error;
+        errorAndPercentageAndOffset[1] = percentage;
+        errorAndPercentageAndOffset[2] = offset;
+
+        return errorAndPercentageAndOffset;
+    }
+
+    */
+
+    private Float[] findClosestMatch(List<DayInfo> history, List<List<DayInfo>> histories) {
         List<Float> percentageScores = new ArrayList<Float>();
 
         for (List<DayInfo> percentage : histories) {
@@ -233,8 +320,11 @@ public class Simulator implements Runnable {
         }
 
         int percentage = percentageScores.indexOf(Collections.min(percentageScores));
+        Float[] percentageAndError = new Float[2];
+        percentageAndError[0] = (float)percentage;
+        percentageAndError[1] = Collections.min(percentageScores);
 
-        return percentage;
+        return percentageAndError;
     }
 
     private void createGraph() throws IOException {
