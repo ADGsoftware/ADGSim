@@ -170,7 +170,7 @@ public class Simulator implements Runnable {
         //Divide by the total number of simulations
         for (DayInfo dayInfo : dayInfos) {
             float sumOfNumbersOfPeopleSickOnThisDay = dayInfo.getNumSick();
-            float averageNumberOfPeopleSickOnThisDay = sumOfNumbersOfPeopleSickOnThisDay / dayInfos.size();
+            float averageNumberOfPeopleSickOnThisDay = sumOfNumbersOfPeopleSickOnThisDay / simulationNum;
             dayInfo.setNumSick(averageNumberOfPeopleSickOnThisDay);
         }
 
