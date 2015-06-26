@@ -211,4 +211,10 @@ public class Utils {
 
         return lineChart;
     }
+
+    //END JFREECHART
+
+    public static float getDifference(float f1, float f2) {
+        return Math.abs(f1 - f2);
+    }
 }

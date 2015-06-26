@@ -7,11 +7,15 @@ import org.jfree.data.xy.XYSeriesCollection;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Simulator implements Runnable {
     List<Person> people = new ArrayList<Person>();
     int numberOfPeopleOriginallyInfected = 0;
+
+    //GIVEN HISTORY. THIS IS GENERATED FOR NOW, BUT WILL BE PASSED AS A PARAMETER IN TOMCAT.
+    List<DayInfo> givenHistory;
 
     //Values TODO: Add as parameters
     int simulationDuration = 25;
@@ -32,10 +36,9 @@ public class Simulator implements Runnable {
     }
 
     public void run() {
-//        System.out.println(people.size());
-//        for (Person person : people) {
-//            System.out.println("Person " + person.getID() + " has " + person.getFriends().size() + " friends.");
-//        }
+        //GENERATE GIVEN HISTORY
+        givenHistory = simulate(14);
+
 
         //Step 1. Infect the people that should be originally infected.
         for (int i = 0; i < numberOfPeopleOriginallyInfected; i++) {
@@ -46,9 +49,12 @@ public class Simulator implements Runnable {
             person.setState(infected);
         }
 
+        System.out.println("Warming up...|    20%   |    30%   |    40%   |    50%   |    60%   |    70%   |    80%   |    90%   |COMPLETE!|");
+        System.out.print("0");
+
         //Step 2. Simulate with this List of people.
         for (int i = 0; i < 100; i+=1) {
-            System.out.println("Running simulation for " + i + "%...");
+            System.out.print("0");
             List<DayInfo> history = simulate(i);
             histories.add(history);
 
@@ -67,6 +73,13 @@ public class Simulator implements Runnable {
             }
         }
 
+        System.out.print("|COMPLETE!|");
+        System.out.println();
+
+
+        float closestPercentage = findClosestMatch(givenHistory, histories);
+
+        System.out.println("The given history is closest to " + closestPercentage + "%.");
 
         //Make chart
         try {
@@ -179,6 +192,27 @@ public class Simulator implements Runnable {
         return dayInfos;
     }
 
+    private float findClosestMatch(List<DayInfo> history, List<List<DayInfo>> histories) {
+        List<Float> percentageScores = new ArrayList<Float>();
+
+        for (List<DayInfo> percentage : histories) {
+            System.out.println("Doing percentage number " + histories.indexOf(percentage) + ".");
+            float percentageScore = 0;
+            for (int i = 0; i < history.size(); i++) {
+                System.out.println("Comparing day " + i + "...");
+                float valueForThisPercentage = percentage.get(i).getNumSick();
+                float valueForGivenHistory = history.get(i).getNumSick();
+                float difference = Utils.getDifference(valueForThisPercentage, valueForGivenHistory);
+                percentageScore += difference;
+            }
+            percentageScores.add(percentageScore);
+        }
+
+        int percentage = percentageScores.indexOf(Collections.min(percentageScores));
+
+        return percentage;
+    }
+
     private void createGraph() throws IOException {
         XYSeriesCollection dataset = new XYSeriesCollection();
 
@@ -197,7 +231,7 @@ public class Simulator implements Runnable {
 
             dataset.addSeries(series);
 
-            System.out.println("The maximum number of sick people is " + series.getMaxY() + ".");
+//            System.out.println("The maximum number of sick people is " + series.getMaxY() + ".");
         }
 
         Main.dataset = dataset;
