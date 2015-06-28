@@ -39,14 +39,14 @@ public class Simulator implements Runnable {
         //GENERATE GIVEN HISTORY
 //        givenHistory = simulate(19);
         DayInfo day1 = new DayInfo(0, 1);
-        DayInfo day2 = new DayInfo(1, 3);
+        DayInfo day2 = new DayInfo(1, 2);
         DayInfo day3 = new DayInfo(2, 5);
-        DayInfo day4 = new DayInfo(3, 5);
-        DayInfo day5 = new DayInfo(4, 7);
-        DayInfo day6 = new DayInfo(5, 10);
+        DayInfo day4 = new DayInfo(3, 10);
+        DayInfo day5 = new DayInfo(4, 10);
+        DayInfo day6 = new DayInfo(5, 11);
         DayInfo day7 = new DayInfo(6, 11);
         DayInfo day8 = new DayInfo(7, 12);
-        DayInfo day9 = new DayInfo(8, 12);
+        DayInfo day9 = new DayInfo(8, 11);
 
         givenHistory.add(day1);
         givenHistory.add(day2);
